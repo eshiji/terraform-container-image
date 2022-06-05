@@ -14,6 +14,4 @@ To run tests:
 cd test
 go test
 ```
-ARG GOLANG_VERSION="1.18.2"
-ARG ARCH="amd64"
-ARG TERRAFORM_VERSION="1.2.1"
+
