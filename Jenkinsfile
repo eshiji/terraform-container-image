@@ -1,6 +1,6 @@
-library identifier: 'jenkins-shared-libs@master', retriever: modernSCM(
+library identifier: 'jenkins-shared-libs@main', retriever: modernSCM(
   [$class: 'GitSCMSource',
-   remote: 'git@github.com:eshiji/jenkins-shared-libs.git',
-   credentialsId: 'my-private-key'])
+   remote: 'https://github.com/eshiji/jenkins-shared-libs',
+   credentialsId: 'jenkins-shared-lib-deploy-key'])
 
 terraformDocker()
