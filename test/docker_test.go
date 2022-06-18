@@ -1,4 +1,4 @@
-package test
+package terraform_tools;
 
 import (
 	"testing"
