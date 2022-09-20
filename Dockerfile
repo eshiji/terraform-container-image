@@ -11,6 +11,7 @@ ARG TERRAGRUNT_URL="https://github.com/gruntwork-io/terragrunt/releases/download
 ARG GOLANG_URL="https://golang.org/dl/go${GOLANG_VERSION}.linux-${ARCH}.tar.gz"
 
 RUN apt-get update && apt-get install -y \
+    build-essential \
     curl \
     wget \
     && rm -rf /var/lib/apt/lists/*
