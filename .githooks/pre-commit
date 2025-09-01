@@ -81,12 +81,16 @@ def run_make_commands():
             print(result.stdout)
             sys.exit(-1)
 
+def check_changelog_updated_in_current_branch():
+    subprocess.run(["git", "diff", "origin", "main", "CHANGELOG.md"], capture_output=False)
+
 def check_substring_exists_in_string(substring: str, string: str) -> bool:
     return substring in string
 
 def main():
     # run_make_commands()
     print("Pre-commit check triggered!!!")
+    check_changelog_updated_in_current_branch()
     branch_name = strip_branch_name()
     repo_tags = get_repo_tags()
     version_from_file = get_version_from_file()
