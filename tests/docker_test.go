@@ -48,17 +48,17 @@ func TestDocker(t *testing.T) {
 	}
 	// Given
 	fmt.Print(runtime.GOROOT(), runtime.GOARCH, runtime.GOOS)
-	current_arch := []string{fmt.Sprintf("linux/%s", runtime.GOARCH)}
+	current_arch := fmt.Sprintf("linux/%s", runtime.GOARCH)
 	// multi_arch := []string{"linux/arm64"}
 	// build_archs := []string{current_arch}
-	buldImage(t, image_tag, current_arch)
+	buldImage(t, image_tag, []string{current_arch})
 
 	// When
 	for name, test := range versionTests {
 		t.Run(name, func(t *testing.T) {
 			opts := &docker.RunOptions{
 				Command:  test.command,
-				Platform: "linux/arm64",
+				Platform: current_arch,
 				Remove:   true,
 			}
 			result := docker.Run(t, image_tag, opts)
