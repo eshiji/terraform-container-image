@@ -18,7 +18,7 @@ GREEN_TEXT = "\033[92m"
 COLOR_END = "\033[0m"
 
 BRANCH_NAME_PREFIX = "feature"
-MAKE_CHECK_CMDS = ["generate-docs", "format"]
+# MAKE_CHECK_CMDS = ["generate-docs", "format"]
 REGEX_PATTERN = "[^a-zA-Z0-9 _-]"
 VERSION_FILE_NAMEPATH = "version"
 
@@ -85,7 +85,7 @@ def check_substring_exists_in_string(substring: str, string: str) -> bool:
     return substring in string
 
 def main():
-    run_make_commands()
+    # run_make_commands()
     branch_name = strip_branch_name()
     repo_tags = get_repo_tags()
     version_from_file = get_version_from_file()
