@@ -24,7 +24,7 @@ jobs:
         sudo apt-get update && sudo apt-get install -y make gcc
         # Example: Install build tools or test runners
     - name: Run Go Tests
-      working-directory: test
+      # working-directory: test
       run: make test
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{env.DOCKERHUB_REPO_NAME}}:${{env.IMAGE_TAG}}
