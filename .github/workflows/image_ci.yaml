@@ -32,10 +32,9 @@ jobs:
         cat version
         echo "version=$(cat version)" >> $GITHUB_OUTPUT
     - name: Build the Docker image
-      run: make build
-    - name: Build Docker image
       run: |
-        docker build . --file Dockerfile --tag ${{env.DOCKERHUB_REPO_NAME}}:${{env.IMAGE_TAG}}
+        make build
         docker tag ${{env.DOCKERHUB_REPO_NAME}}:${{env.IMAGE_TAG}} ${{env.DOCKERHUB_REPO_NAME}}:${{ steps.getversion.outputs.version }}
+
 
 
