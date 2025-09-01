@@ -3,8 +3,6 @@ name: Docker Push Image
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 env:
   DOCKERHUB_REPO_NAME: eshijii/terraform-tools
