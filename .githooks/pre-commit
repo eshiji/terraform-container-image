@@ -60,7 +60,11 @@ def branch_name_startswith(prefix: str) -> bool:
     return get_branch_name().startswith(prefix)
 
 def fetch_tags_only():
-    subprocess.run(["git", "fetch", "origin", "main", "refs/tags/*:refs/tags/*"], capture_output=False)
+    result = subprocess.run(["git", "fetch", "origin", "main", "refs/tags/*:refs/tags/*"], capture_output=False)
+    if result.check_returncode():
+            print(result.stderr)
+            print(result.stdout)
+            sys.exit(-1)
 
 def get_repo_tags() -> List[str]:
     fetch_tags_only()
@@ -81,8 +85,20 @@ def run_make_commands():
             print(result.stdout)
             sys.exit(-1)
 
-def check_changelog_updated_in_current_branch():
-    subprocess.run(["git", "diff", "--quiet", "origin", "main", "CHANGELOG.md"], capture_output=False)
+def check_git_diff_for_file(file: str) -> bool:
+    try:
+        cmd_result = subprocess.run(["git", "--no-pager", "diff", "main", file], capture_output=True, text=True, check=False)
+        output = cmd_result.stdout.strip()
+        if output:
+            print(f"{file} foi alterado.")
+            print(output)
+            return True
+        print(f"{file} não foi alterado.")
+        return False
+    except FileNotFoundError:
+        raise RuntimeError("Git command not found. Make sure Git is installed and in your PATH.")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Git command failed with error: {e.stderr}")
 
 def check_substring_exists_in_string(substring: str, string: str) -> bool:
     return substring in string
@@ -90,7 +106,7 @@ def check_substring_exists_in_string(substring: str, string: str) -> bool:
 def main():
     # run_make_commands()
     print("Pre-commit check triggered!!!")
-    check_changelog_updated_in_current_branch()
+    check_git_diff_for_file("CHANGELOG.md")
     branch_name = strip_branch_name()
     repo_tags = get_repo_tags()
     version_from_file = get_version_from_file()
