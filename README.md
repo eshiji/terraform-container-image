@@ -7,11 +7,10 @@ The image contains:
  - Terraform 1.2.1
  - [tfswitch](https://tfswitch.warrensbox.com)
 
-## Testing 
+## Testing
 
 To run tests:
 ```shell
-cd test
-go test
+make test
 ```
 

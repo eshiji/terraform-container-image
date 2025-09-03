@@ -82,7 +82,7 @@ def run_make_commands():
             sys.exit(-1)
 
 def check_changelog_updated_in_current_branch():
-    subprocess.run(["git", "diff", "origin", "main", "CHANGELOG.md"], capture_output=False)
+    subprocess.run(["git", "diff", "--quiet", "origin", "main", "CHANGELOG.md"], capture_output=False)
 
 def check_substring_exists_in_string(substring: str, string: str) -> bool:
     return substring in string
