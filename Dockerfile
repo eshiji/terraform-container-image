@@ -29,10 +29,12 @@ ARG TARGETOS TARGETARCH
 ARG TERRAFORM_VERSION="1.2.1"
 ARG TERRAGRUNT_VERSION="v0.86.2"
 ARG TERRAFORM_DOCS_VERSION="v0.20.0"
+ARG TFSEC_VERSION="v1.28.14"
 
 ARG TFSWITCH_URL="https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh"
 ARG TERRAGRUNT_URL="https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}"
 ARG TERRAFORM_DOCS_URL="https://terraform-docs.io/dl/${TERRAFORM_DOCS_VERSION}/terraform-docs-${TERRAFORM_DOCS_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
+ARG TFSEC_URL="https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-checkgen-${TARGETOS}-${TARGETARCH}"
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -52,6 +54,10 @@ RUN wget -cq $TERRAGRUNT_URL -O /usr/local/bin/terragrunt && \
 RUN wget -cqO /tmp/terraform-docs.tar.gz $TERRAFORM_DOCS_URL && \
     tar -xzf /tmp/terraform-docs.tar.gz && \
     mv terraform-docs /usr/local/bin/terraform-docs
+
+# tfsec
+RUN wget -cq $TFSEC_URL -O /usr/local/bin/tfsec && \
+    chmod u+x /usr/local/bin/tfsec
 
 ############ END ############
 
