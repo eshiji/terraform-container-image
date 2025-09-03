@@ -14,6 +14,7 @@ import (
 const terragrunt_version = "v0.86.2"
 const tfswitch_version = "v1.5.0"
 const terraform_docs_version = "v0.20.0"
+const tfsec_version = "v1.28.14"
 const image_tag = "terraform-docker-terratest"
 
 func buldImage(t *testing.T, tag string, arch []string) {
@@ -40,6 +41,10 @@ func TestDocker(t *testing.T) {
 		"terraform-docs": {
 			command:  []string{"terraform-docs", "--version"},
 			expected: terraform_docs_version,
+		},
+		"tfsec": {
+			command:  []string{"tfsec", "--version"},
+			expected: tfsec_version,
 		},
 		// "go": {
 		// 	command:  []string{"go", "version"},

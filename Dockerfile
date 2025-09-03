@@ -34,7 +34,7 @@ ARG TFSEC_VERSION="v1.28.14"
 ARG TFSWITCH_URL="https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh"
 ARG TERRAGRUNT_URL="https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}"
 ARG TERRAFORM_DOCS_URL="https://terraform-docs.io/dl/${TERRAFORM_DOCS_VERSION}/terraform-docs-${TERRAFORM_DOCS_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
-ARG TFSEC_URL="https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-checkgen-${TARGETOS}-${TARGETARCH}"
+ARG TFSEC_URL="https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-${TARGETOS}-${TARGETARCH}"
 
 RUN apt-get update && apt-get install -y \
     build-essential \
