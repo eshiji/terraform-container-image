@@ -15,6 +15,7 @@ from typing import List
 
 RED_TEXT = "\033[91m"
 GREEN_TEXT = "\033[92m"
+YELLOW_TEXT = '\033[33m'
 COLOR_END = "\033[0m"
 
 BRANCH_NAME_PREFIX = "feature"
@@ -90,11 +91,12 @@ def check_git_diff_for_file(file: str):
         cmd_result = subprocess.run(["git", "--no-pager", "diff", "main", file], capture_output=True, text=True, check=False)
         output = cmd_result.stdout.strip()
         if output:
-            print(f"{GREEN_TEXT}{file} foi alterado.{COLOR_END}")
+            print(f"{GREEN_TEXT}{file} foi atualizado.{COLOR_END}")
             # print(output)
             return
 
-        print(f"{file} não foi alterado.")
+        print(f"{RED_TEXT}{file} não foi atualizado.{COLOR_END}")
+        print(f"{YELLOW_TEXT}Atualize {file} e tente novamente.{COLOR_END}")
         sys.exit(-1)
 
     except FileNotFoundError:
@@ -108,6 +110,7 @@ def check_substring_exists_in_string(substring: str, string: str) -> bool:
 def main():
     # run_make_commands()
     print("--- Pre-commit checks triggered!!! ---")
+    print()
     check_git_diff_for_file("CHANGELOG.md")
     branch_name = strip_branch_name()
     repo_tags = get_repo_tags()
