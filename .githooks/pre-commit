@@ -85,16 +85,18 @@ def run_make_commands():
             print(result.stdout)
             sys.exit(-1)
 
-def check_git_diff_for_file(file: str) -> bool:
+def check_git_diff_for_file(file: str):
     try:
         cmd_result = subprocess.run(["git", "--no-pager", "diff", "main", file], capture_output=True, text=True, check=False)
         output = cmd_result.stdout.strip()
         if output:
-            print(f"{file} foi alterado.")
-            print(output)
-            return True
+            print(f"{GREEN_TEXT}{file} foi alterado.{COLOR_END}")
+            # print(output)
+            return
+
         print(f"{file} não foi alterado.")
-        return False
+        sys.exit(-1)
+
     except FileNotFoundError:
         raise RuntimeError("Git command not found. Make sure Git is installed and in your PATH.")
     except subprocess.CalledProcessError as e:
