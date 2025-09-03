@@ -19,7 +19,7 @@ YELLOW_TEXT = '\033[33m'
 COLOR_END = "\033[0m"
 
 BRANCH_NAME_PREFIX = "feature"
-# MAKE_CHECK_CMDS = ["generate-docs", "format"]
+# MAKE_CHECK_CMDS = ["docs", "format"]
 REGEX_PATTERN = "[^a-zA-Z0-9 _-]"
 VERSION_FILE_NAMEPATH = "version"
 
@@ -109,7 +109,7 @@ def check_substring_exists_in_string(substring: str, string: str) -> bool:
 
 def main():
     # run_make_commands()
-    print("--- Pre-commit checks triggered!!! ---")
+    print(f"{YELLOW_TEXT}--- Pre-commit checks triggered!!! ---{COLOR_END}")
     print()
     check_git_diff_for_file("CHANGELOG.md")
     branch_name = strip_branch_name()
