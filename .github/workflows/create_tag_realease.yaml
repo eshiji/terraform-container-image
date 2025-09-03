@@ -1,0 +1,108 @@
+# Runs terraform module publish
+name: terraform-module-publish-tag-and-release
+
+on:
+  push:
+    # Trigger this github action when pushed directly to the master or main branches
+    branches: ["master", "main", "feature/*"]
+
+permissions:
+  contents: write
+
+jobs:
+  create-tag:
+    runs-on: default
+    outputs:
+      version: ${{ steps.getversion.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Read VERSION file
+        id: getversion
+        run: |
+          cat version
+          echo "version=$(cat version)" >> $GITHUB_OUTPUT
+
+      - name: Check Tags
+        id: checktag
+        run: |
+          if git show-ref --tags --verify --quiet "refs/tags/${{ steps.getversion.outputs.version }}"; then
+            echo "tag_exists=true"
+          else
+            echo "tag_exists=false"
+          fi
+          echo "tag_exists=$tag_exists" >> $GITHUB_OUTPUT
+
+      - name: Create Tag
+        uses: actions/github-script@v7
+        if: steps.checktag.outputs.tag_exists == false
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/${{ steps.getversion.outputs.version }}',
+              sha: context.sha
+            })
+
+  create-release:
+    runs-on: self-hosted
+    needs: [ create-tag ]
+    steps:
+      - name: Check Releases
+        id: checkrelease
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        run: |
+          if [[ "$(gh release view ${{ needs.create-tag.outputs.version }} 2>&1)" == "release not found" ]]; then
+            echo "Release not found."
+            echo "release_exists=false"
+          else
+            echo "Release found."
+            echo "release_exists=true"
+          fi
+          echo "release_exists=$release_exists" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        if: steps.checkrelease.outputs.release_exists == false
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/releases \
+            -f "name=${{ needs.create-tag.outputs.version }}" \
+            -f "tag_name=${{ needs.create-tag.outputs.version }}" \
+            -f "target_commitish=main" \
+            -F "draft=false" \
+            -F "generate_release_notes=true" \
+            -F "prerelease=${{ contains(github.ref_name, 'feature') }}" \
+            -F "make_latest='${{ contains(github.ref_name, 'main') }}'"
+
+      - name: Update Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        if: steps.checkrelease.outputs.release_exists == true
+        run: |
+          RELEASE_ID=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/releases/tags/${{ needs.create-tag.outputs.version }} \
+            --jq '.id')
+          gh api \
+            --method PATCH \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/releases/$RELEASE_ID \
+            -f "name=${{ needs.create-tag.outputs.version }}" \
+            -f "tag_name=${{ needs.create-tag.outputs.version }}" \
+            -f "target_commitish=main" \
+            -F "draft=false" \
+            -F "generate_release_notes=true" \
+            -F "prerelease=${{ contains(github.ref_name, 'feature') }}" \
+            -F "make_latest='${{ contains(github.ref_name, 'main') }}'"

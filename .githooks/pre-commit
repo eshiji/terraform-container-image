@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+# 1. Execute format "terraform fmt"
+# 2. Generate module docs using terraform-docs
+# 3. Validates if version file needs to be updated:
+#   - If branch name starts with feature, update the version file
+# with {version_file_text}-{branch_name}-{short_commit_hash}
+# and git add version
+import pty
+import re
+import subprocess
+import sys
+import os
+from typing import List
+
+
+RED_TEXT = "\033[91m"
+GREEN_TEXT = "\033[92m"
+YELLOW_TEXT = '\033[33m'
+COLOR_END = "\033[0m"
+
+BRANCH_NAME_PREFIX = "feature"
+# MAKE_CHECK_CMDS = ["docs", "format"]
+REGEX_PATTERN = "[^a-zA-Z0-9 _-]"
+VERSION_FILE_NAMEPATH = "version"
+
+_, pseudo_terminal_slave = pty.openpty()
+
+# {version_file_text}-{branch_name}-{short_commit_hash}
+def generate_tag_name() -> str:
+    branch_name = strip_branch_name()
+    short_commit_sha =  get_short_commit_sha()
+    version = get_version_from_file()
+    return f"{version}-{branch_name}-{short_commit_sha}"
+
+def get_branch_name() -> str:
+    return subprocess.getoutput("git rev-parse --abbrev-ref HEAD")
+
+def strip_branch_name() -> str:
+    branch_name = get_branch_name()
+    return re.sub(REGEX_PATTERN, '', branch_name).replace(BRANCH_NAME_PREFIX, "")
+
+def get_short_commit_sha() -> str:
+    return subprocess.getoutput("git rev-parse --short HEAD")
+
+def get_version_from_file() -> str:
+    with open(VERSION_FILE_NAMEPATH, 'r') as f:
+        return f.read().strip()
+
+def empty_version_file() -> bool:
+    if os.path.getsize(VERSION_FILE_NAMEPATH) == 0:
+        return True
+    return False
+
+def update_version_file(new_version: str):
+    with open(VERSION_FILE_NAMEPATH, 'w') as f:
+        f.seek(0)
+        f.truncate()
+        f.write(new_version)
+
+def branch_name_startswith(prefix: str) -> bool:
+    return get_branch_name().startswith(prefix)
+
+def fetch_tags_only():
+    result = subprocess.run(["git", "fetch", "origin", "main", "refs/tags/*:refs/tags/*"], capture_output=False)
+    if result.check_returncode():
+            print(result.stderr)
+            print(result.stdout)
+            sys.exit(-1)
+
+def get_repo_tags() -> List[str]:
+    fetch_tags_only()
+    git_tag_cmd = subprocess.run(["git", "--no-pager", "tag"], capture_output=True)
+    return list(filter(None, git_tag_cmd.stdout.decode("utf-8").split("\n")))
+
+def version_exists_in_repo(repo_tags:List[str], version:str) -> bool:
+    for tag in repo_tags:
+        if version == tag:
+            return True
+    return False
+
+def run_make_commands():
+    for cmd in MAKE_CHECK_CMDS:
+        result = subprocess.run(["make", cmd], stdin=pseudo_terminal_slave)
+        if result.check_returncode():
+            print(result.stderr)
+            print(result.stdout)
+            sys.exit(-1)
+
+def check_git_diff_for_file(file: str):
+    try:
+        cmd_result = subprocess.run(["git", "--no-pager", "diff", "main", file], capture_output=True, text=True, check=False)
+        output = cmd_result.stdout.strip()
+        if output:
+            print(f"{GREEN_TEXT}{file} foi atualizado.{COLOR_END}")
+            # print(output)
+            return
+
+        print(f"{RED_TEXT}{file} não foi atualizado.{COLOR_END}")
+        print(f"{YELLOW_TEXT}Atualize {file} e tente novamente.{COLOR_END}")
+        sys.exit(-1)
+
+    except FileNotFoundError:
+        raise RuntimeError("Git command not found. Make sure Git is installed and in your PATH.")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Git command failed with error: {e.stderr}")
+
+def check_substring_exists_in_string(substring: str, string: str) -> bool:
+    return substring in string
+
+def main():
+    # run_make_commands()
+    print(f"{YELLOW_TEXT}--- Pre-commit checks triggered!!! ---{COLOR_END}")
+    print()
+    check_git_diff_for_file("CHANGELOG.md")
+    branch_name = strip_branch_name()
+    repo_tags = get_repo_tags()
+    version_from_file = get_version_from_file()
+    version_exists = version_exists_in_repo(repo_tags, version_from_file)
+    branch_name_starts_with_prefix = branch_name_startswith(BRANCH_NAME_PREFIX)
+    new_version = generate_tag_name()
+
+    # Fail when version file not found or empty
+    if empty_version_file():
+        print(f"{RED_TEXT}Version file is empty.{COLOR_END}")
+        sys.exit(-1)
+
+    # When there are no git tags and user need to test a release
+    if not repo_tags and branch_name_starts_with_prefix:
+        # Only update version file if does not contain the branch name
+        branch_name_in_version_file = check_substring_exists_in_string(branch_name, version_from_file)
+        if not branch_name_in_version_file:
+            update_version_file(new_version)
+            print(f"{GREEN_TEXT}Branch name starts with {BRANCH_NAME_PREFIX}.{COLOR_END}")
+            subprocess.run(["git", "add", VERSION_FILE_NAMEPATH], capture_output=True)
+            print(f"{GREEN_TEXT}Version file updated to {new_version}.{COLOR_END}")
+            sys.exit(0)
+
+    # Fail whem version file exists in git tags
+    if version_exists:
+        print(f"{RED_TEXT}Version {version_from_file} already exists as a tag in repository!{COLOR_END}")
+        print(f"{RED_TEXT}Check version file and add an entry in CHANGELOG.md.{COLOR_END}")
+        sys.exit(-1)
+
+    # Change the version file when branch starts with BRANCH_NAME_PREFIX
+    # and version does not exist
+    if branch_name_starts_with_prefix:
+        # Only update version file if does not contain the branch name
+        branch_name_in_version_file = check_substring_exists_in_string(branch_name, version_from_file)
+        if not branch_name_in_version_file:
+            update_version_file(new_version)
+            print(f"{GREEN_TEXT}Branch name starts with {BRANCH_NAME_PREFIX}.{COLOR_END}")
+            subprocess.run(["git", "add", VERSION_FILE_NAMEPATH], capture_output=True)
+            print(f"{GREEN_TEXT}Version file updated to {new_version}.{COLOR_END}")
+            sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
