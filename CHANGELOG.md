@@ -1,3 +1,6 @@
+# 0.2.1 - 09/04/2205
+- Fix push image pipeline
+
 # 0.2.0 - 09/04/2205
 - Update push image commands
 - Update pre-commit check files to iterate over a list of files

@@ -5,44 +5,35 @@ on:
     branches: [ "main" ]
 
 env:
-  REGISTRY: eshijii
-  IMAGE_NAME: ${{ github.repository }}
+  DOCKERHUB_REPO_NAME: ${{ github.repository }}
 
 jobs:
-  push_to_registry:
+
+  build:
+
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-    outputs:
-      version: ${{ steps.getVersion.outputs.version }}
 
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v5
 
     - name: Read VERSION file
-      id: getVersion
+      id: getversion
       run: |
         cat version
         echo "version=$(cat version)" >> $GITHUB_OUTPUT
 
-    - name: Set Docker image tag
-      id: setImageTagName
-      run: echo "IMAGE_TAG=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.getVersion.outputs.version }}" >> $GITHUB_ENV
+    - name: Set Image Tag
+      id: setImageTag
+      run: |
+        echo "IMAGE_TAG=${{env.DOCKERHUB_REPO_NAME}}:${{ steps.getVersion.outputs.version }}" >> $GITHUB_ENV
 
-    - name: Log in to the Container registry
-      uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ secrets.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: docker login
+      run: |
+        echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ${{ steps.setImageTagName.outputs.IMAGE_TAG }}
+      run: docker build . --file Dockerfile --tag ${{ steps.setImageTag.outputs.IMAGE_TAG }}
+
     - name: DockerPush
-      run: docker push ${{ steps.setImageTagName.outputs.IMAGE_TAG }}
-
-
+      run: docker push ${{ steps.setImageTag.outputs.IMAGE_TAG }}
