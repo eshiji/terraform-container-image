@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 env:
-  DOCKERHUB_REPO_NAME: eshijii/terraform-tools
+  DOCKERHUB_REPO_NAME: ${{ github.repository }}
 
 jobs:
 
