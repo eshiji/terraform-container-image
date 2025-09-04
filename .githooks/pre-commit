@@ -112,6 +112,7 @@ def main():
     print(f"{YELLOW_TEXT}--- Pre-commit checks triggered!!! ---{COLOR_END}")
     print()
     check_git_diff_for_file("CHANGELOG.md")
+    check_git_diff_for_file("version")
     branch_name = strip_branch_name()
     repo_tags = get_repo_tags()
     version_from_file = get_version_from_file()
