@@ -1,3 +1,7 @@
+# 0.2.0 - 09/04/2205
+- Update push image commands
+- Update pre-commit check files to iterate over a list of files
+
 # 0.1.1 - 09/03/2205
 - Add version file check on pre-commit
 - Fix pipelines runs_on

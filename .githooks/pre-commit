@@ -20,6 +20,7 @@ COLOR_END = "\033[0m"
 
 BRANCH_NAME_PREFIX = "feature"
 # MAKE_CHECK_CMDS = ["docs", "format"]
+FILES_TO_CHECK = ["CHANGELOG.md", "version"]
 REGEX_PATTERN = "[^a-zA-Z0-9 _-]"
 VERSION_FILE_NAMEPATH = "version"
 
@@ -86,18 +87,21 @@ def run_make_commands():
             print(result.stdout)
             sys.exit(-1)
 
-def check_git_diff_for_file(file: str):
+def check_git_diff_for_file(file: List[str]):
     try:
-        cmd_result = subprocess.run(["git", "--no-pager", "diff", "main", file], capture_output=True, text=True, check=False)
-        output = cmd_result.stdout.strip()
-        if output:
-            print(f"{GREEN_TEXT}{file} foi atualizado.{COLOR_END}")
-            # print(output)
-            return
-
-        print(f"{RED_TEXT}{file} não foi atualizado.{COLOR_END}")
-        print(f"{YELLOW_TEXT}Atualize {file} e tente novamente.{COLOR_END}")
-        sys.exit(-1)
+        outdated_files = []
+        for file in FILES_TO_CHECK:
+            cmd_result = subprocess.run(["git", "--no-pager", "diff", "main", file], capture_output=True, text=True, check=False)
+            output = cmd_result.stdout.strip()
+            if output:
+                print(f"{GREEN_TEXT}{file} foi atualizado.{COLOR_END}")
+            else:
+                outdated_files.append(file)
+        if outdated_files:
+            print(f"{RED_TEXT}Os seguintes arquivos não foram atualizados: {COLOR_END}")
+            print(f"{RED_TEXT}{', '.join(outdated_files)}{COLOR_END}")
+            print(f"{YELLOW_TEXT}Atualize e tente novamente.{COLOR_END}")
+            sys.exit(-1)
 
     except FileNotFoundError:
         raise RuntimeError("Git command not found. Make sure Git is installed and in your PATH.")
@@ -111,8 +115,7 @@ def main():
     # run_make_commands()
     print(f"{YELLOW_TEXT}--- Pre-commit checks triggered!!! ---{COLOR_END}")
     print()
-    check_git_diff_for_file("CHANGELOG.md")
-    check_git_diff_for_file("version")
+    check_git_diff_for_file(FILES_TO_CHECK)
     branch_name = strip_branch_name()
     repo_tags = get_repo_tags()
     version_from_file = get_version_from_file()

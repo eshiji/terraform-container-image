@@ -5,29 +5,44 @@ on:
     branches: [ "main" ]
 
 env:
-  DOCKERHUB_REPO_NAME: eshijii/terraform-tools
-  IMAGE_TAG: latest
+  REGISTRY: eshijii
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-
-  build:
-
+  push_to_registry:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    outputs:
+      version: ${{ steps.getVersion.outputs.version }}
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-go@v1
-      with:
-        go-version: 1.18
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag ${{env.DOCKERHUB_REPO_NAME}}:${{env.IMAGE_TAG}}
-    - name: docker login
-      env:
-        DOCKER_USER: ${{secrets.DOCKER_USER}}
-        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    - name: Read VERSION file
+      id: getVersion
       run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        cat version
+        echo "version=$(cat version)" >> $GITHUB_OUTPUT
+
+    - name: Set Docker image tag
+      id: setImageTagName
+      run: echo "IMAGE_TAG=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.getVersion.outputs.version }}" >> $GITHUB_ENV
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{ steps.setImageTagName.outputs.IMAGE_TAG }}
     - name: DockerPush
-      run: docker push ${{env.DOCKERHUB_REPO_NAME}}:${{env.IMAGE_TAG}}
+      run: docker push ${{ steps.setImageTagName.outputs.IMAGE_TAG }}
 
 
