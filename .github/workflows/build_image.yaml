@@ -11,10 +11,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-      with:
-        go-version: 1.18
-    - name: Build the Docker image
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Build image
       run: docker build . --file Dockerfile --tag ${{env.DOCKERHUB_REPO_NAME}}:${{env.IMAGE_TAG}}

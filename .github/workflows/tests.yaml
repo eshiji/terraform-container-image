@@ -1,4 +1,4 @@
-name: Image Tests
+name: Image tests
 
 on:
   pull_request:
@@ -7,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -17,6 +16,6 @@ jobs:
       with:
         go-version: 1.25
 
-    - name: Run Go Tests
+    - name: Run Go tests
       working-directory: tests
       run: go test
