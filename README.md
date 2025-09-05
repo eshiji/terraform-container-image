@@ -13,4 +13,3 @@ To run tests:
 ```shell
 make test
 ```
-
