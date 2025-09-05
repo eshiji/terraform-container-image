@@ -15,7 +15,7 @@ from typing import List
 
 RED_TEXT = "\033[91m"
 GREEN_TEXT = "\033[92m"
-YELLOW_TEXT = '\033[33m'
+YELLOW_TEXT = "\033[33m"
 COLOR_END = "\033[0m"
 
 BRANCH_NAME_PREFIX = "feature"

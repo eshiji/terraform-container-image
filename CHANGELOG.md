@@ -1,3 +1,6 @@
+# 0.4.0 - 09/04/2025
+- Improve pre-commit
+
 # 0.3.0 - 09/04/2025
 - add PR template
 
