@@ -113,7 +113,7 @@ def check_substring_exists_in_string(substring: str, string: str) -> bool:
 
 def main():
     # run_make_commands()
-    print(f"{YELLOW_TEXT}--- Pre-commit checks triggered!!! ---{COLOR_END}")
+    print(f"{YELLOW_TEXT}--- Pre-commit checks triggered ---{COLOR_END}")
     print()
     check_git_diff_for_file(FILES_TO_CHECK)
     branch_name = strip_branch_name()
