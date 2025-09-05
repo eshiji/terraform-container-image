@@ -1,1 +1,14 @@
-.git
+.git/
+.gitignore
+.github/
+
+.dockerignore
+
+.vscode/
+.DS_Store
+
+tests/*
+
+Makefile
+version
+README.md

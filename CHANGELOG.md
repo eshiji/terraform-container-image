@@ -1,3 +1,7 @@
+# 0.4.1 - 09/05/2025
+- Update .dockerignroe
+- Update .github workflows names
+
 # 0.4.0 - 09/04/2025
 - Improve pre-commit
 

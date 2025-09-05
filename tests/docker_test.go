@@ -17,7 +17,7 @@ const terraform_docs_version = "v0.20.0"
 const tfsec_version = "v1.28.14"
 const image_tag = "terraform-docker-terratest"
 
-func buldImage(t *testing.T, tag string, arch []string) {
+func buildImage(t *testing.T, tag string, arch []string) {
 	buildOptions := &docker.BuildOptions{
 		Tags:          []string{tag},
 		Architectures: arch,
@@ -52,11 +52,8 @@ func TestDocker(t *testing.T) {
 		// },
 	}
 	// Given
-	fmt.Print(runtime.GOROOT(), runtime.GOARCH, runtime.GOOS)
 	current_arch := fmt.Sprintf("linux/%s", runtime.GOARCH)
-	// multi_arch := []string{"linux/arm64"}
-	// build_archs := []string{current_arch}
-	buldImage(t, image_tag, []string{current_arch})
+	buildImage(t, image_tag, []string{current_arch})
 
 	// When
 	for name, test := range versionTests {
