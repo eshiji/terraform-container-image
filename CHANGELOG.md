@@ -1,3 +1,6 @@
+# 0.4.2 - 09/05/2025
+- Add tag latest
+
 # 0.4.1 - 09/05/2025
 - Update .dockerignroe
 - Update .github workflows names

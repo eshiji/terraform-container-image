@@ -29,5 +29,10 @@ jobs:
     - name: Build image
       run: docker build . --file Dockerfile --tag $IMAGE_TAG
 
+    - name: Create tag latest
+      run: docker tag $IMAGE_TAG ${{env.DOCKERHUB_REPO_NAME}}:latest
+
     - name: Push image
-      run: docker push $IMAGE_TAG
+      run: |
+        docker push $IMAGE_TAG
+        docker push ${{env.DOCKERHUB_REPO_NAME}}:latest
