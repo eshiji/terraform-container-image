@@ -30,7 +30,7 @@ ARG TERRAFORM_VERSION="1.2.1"
 ARG TERRAGRUNT_VERSION="v0.86.2"
 ARG TERRAFORM_DOCS_VERSION="v0.20.0"
 ARG TFSEC_VERSION="v1.28.14"
-ARG TFSWITCH_VERSION="1.5.1"
+ARG TFSWITCH_VERSION="v1.5.1"
 
 ARG TFSWITCH_URL="https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh"
 ARG TERRAGRUNT_URL="https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}"
@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # tfswitch
-RUN curl -L $TFSWITCH_URL | bash - $TFSWITCH_VERSION && \
+RUN curl -L $TFSWITCH_URL | bash -s -- $TFSWITCH_VERSION && \
     tfswitch $TERRAFORM_VERSION
 
 # terragrunt
