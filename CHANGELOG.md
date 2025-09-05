@@ -1,6 +1,9 @@
 # 0.3.0 - 09/04/2025
 - add PR template
 
+# 0.2.3 - 09/04/2025
+- Fix docker registry name
+
 # 0.2.2 - 09/04/2025
 - Fix push image pipeline
 - Update build and test workflow pipelines
