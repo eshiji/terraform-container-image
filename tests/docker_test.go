@@ -12,7 +12,7 @@ import (
 // TODO add go version check after fix multiarch build
 // const go_version = "1.18.2"
 const terragrunt_version = "v0.86.2"
-const tfswitch_version = "v1.5.0"
+const tfswitch_version = "v1.5.1"
 const terraform_docs_version = "v0.20.0"
 const tfsec_version = "v1.28.14"
 const image_tag = "terraform-docker-terratest"
