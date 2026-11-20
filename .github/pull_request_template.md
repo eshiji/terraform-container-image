@@ -1,13 +1,17 @@
-## ℹ️ Descrição
+## What
 
-<!--- Por que essa alteração é necessária? -->
-<!--- Qual o problema será resolvido? -->
-<!--- O que foi feito/adicionado/modificado/removido? -->
+<!-- One or two sentences. -->
 
-### 🧪 Instruções para teste
+## Why
 
-<!--- Passos para testar -->
+<!-- The problem this solves. Link the issue, or the ADR for design decisions (docs/adr/NNNN-*.md). -->
 
-### 🎫 Jira
+## How to test
 
-<!--- Card do Jira -->
+<!-- Commands a reviewer can run. -->
+
+## Checklist
+
+- [ ] Tests written before the change, and passing (`make test`)
+- [ ] ADR added if this changes an architectural decision
+- [ ] Breaking change marked with `!` in the PR title (e.g. `feat!: ...`)
