@@ -2,20 +2,28 @@ name: Image tests
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  test:
+    name: Build the image and run its tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.25
-
-    - name: Run Go tests
-      working-directory: tests
-      run: go test
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version-file: tests/go.mod
+          cache: false
+      - name: Run Go tests
+        working-directory: tests
+        run: go test -count=1 -timeout 25m ./...

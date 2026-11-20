@@ -8,6 +8,7 @@ The image contains:
  - [tfswitch](https://tfswitch.warrensbox.com)
 
 ## Testing
+For running container binaries tests terratest tool is used.
 
 To run tests:
 ```shell

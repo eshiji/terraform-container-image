@@ -1,3 +1,10 @@
+# 0.5.0 - 11/20/2026
+- Fix image build: install Terraform directly from releases.hashicorp.com with SHA256 verification (tfswitch v1.5.1 can no longer verify HashiCorp's PGP signature, and its ~/bin install never reached the final stage)
+- Add functional test running `terraform init/validate/plan` inside the image
+- Build the test image once per test run
+- Read declared tool versions from the Dockerfile with nana instead of repeating them in tests; add the missing terraform check and a guard for unchecked version ARGs
+- Harden the test workflow: actions pinned by SHA, read-only permissions, Go from tests/go.mod
+
 # 0.4.3 - 09/08/2025
 - Add `make help`
 

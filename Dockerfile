@@ -32,6 +32,7 @@ ARG TERRAFORM_DOCS_VERSION="v0.20.0"
 ARG TFSEC_VERSION="v1.28.14"
 ARG TFSWITCH_VERSION="v1.5.1"
 
+ARG TERRAFORM_RELEASES_URL="https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}"
 ARG TFSWITCH_URL="https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh"
 ARG TERRAGRUNT_URL="https://github.com/gruntwork-io/terragrunt/releases/download/${TERRAGRUNT_VERSION}/terragrunt_${TARGETOS}_${TARGETARCH}"
 ARG TERRAFORM_DOCS_URL="https://terraform-docs.io/dl/${TERRAFORM_DOCS_VERSION}/terraform-docs-${TERRAFORM_DOCS_VERSION}-${TARGETOS}-${TARGETARCH}.tar.gz"
@@ -40,12 +41,22 @@ ARG TFSEC_URL="https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_V
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
+    unzip \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
+# terraform: installed directly (checksum-verified) instead of via tfswitch,
+# whose bundled HashiCorp PGP key no longer verifies and whose default
+# install dir (~/bin) is not copied into the final stage.
+RUN cd /tmp && \
+    ZIP="terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip" && \
+    wget -q "${TERRAFORM_RELEASES_URL}/${ZIP}" "${TERRAFORM_RELEASES_URL}/terraform_${TERRAFORM_VERSION}_SHA256SUMS" && \
+    grep " ${ZIP}$" "terraform_${TERRAFORM_VERSION}_SHA256SUMS" | sha256sum -c - && \
+    unzip -o "${ZIP}" terraform -d /usr/local/bin && \
+    rm -f "${ZIP}" "terraform_${TERRAFORM_VERSION}_SHA256SUMS"
+
 # tfswitch
-RUN curl -L $TFSWITCH_URL | bash -s -- $TFSWITCH_VERSION && \
-    tfswitch $TERRAFORM_VERSION
+RUN curl -L $TFSWITCH_URL | bash -s -- $TFSWITCH_VERSION
 
 # terragrunt
 RUN wget -cq $TERRAGRUNT_URL -O /usr/local/bin/terragrunt && \
