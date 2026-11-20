@@ -1,6 +1,8 @@
 module github.com/eshiji/terraform-docker
 
-go 1.23.2
+go 1.26
+
+toolchain go1.26.11
 
 require (
 	github.com/gruntwork-io/terratest v0.50.0
