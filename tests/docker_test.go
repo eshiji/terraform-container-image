@@ -1,8 +1,6 @@
 package terraform_tools
 
 import (
-	"fmt"
-	"runtime"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/docker"
@@ -15,15 +13,6 @@ const terragrunt_version = "v0.86.2"
 const tfswitch_version = "v1.5.1"
 const terraform_docs_version = "v0.20.0"
 const tfsec_version = "v1.28.14"
-const image_tag = "terraform-docker-terratest"
-
-func buildImage(t *testing.T, tag string, arch []string) {
-	buildOptions := &docker.BuildOptions{
-		Tags:          []string{tag},
-		Architectures: arch,
-	}
-	docker.Build(t, "../", buildOptions)
-}
 
 func TestDocker(t *testing.T) {
 	var versionTests = map[string]struct {
@@ -51,19 +40,17 @@ func TestDocker(t *testing.T) {
 		// 	expected: go_version,
 		// },
 	}
-	// Given
-	current_arch := fmt.Sprintf("linux/%s", runtime.GOARCH)
-	buildImage(t, image_tag, []string{current_arch})
+	image := builtImage(t)
 
 	// When
 	for name, test := range versionTests {
 		t.Run(name, func(t *testing.T) {
 			opts := &docker.RunOptions{
 				Command:  test.command,
-				Platform: current_arch,
+				Platform: currentPlatform(),
 				Remove:   true,
 			}
-			result := docker.Run(t, image_tag, opts)
+			result := docker.Run(t, image, opts)
 			assert.Contains(t, result, test.expected)
 		})
 
