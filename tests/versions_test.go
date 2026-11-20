@@ -24,12 +24,11 @@ var toolChecks = map[string][]string{
 	"TERRAFORM_DOCS_VERSION": {"terraform-docs", "--version"},
 	"TFSEC_VERSION":          {"tfsec", "--version"},
 	"TFSWITCH_VERSION":       {"tfswitch", "--version"},
+	"GOLANG_VERSION":         {"go", "version"},
 }
 
 // notCheckedYet lists declared versions without a check, each with the reason.
-var notCheckedYet = map[string]string{
-	"GOLANG_VERSION": "go is copied to /usr/local/bin/go/bin, which is not on PATH",
-}
+var notCheckedYet = map[string]string{}
 
 type dockerfileArg struct {
 	Name    string `json:"name"`

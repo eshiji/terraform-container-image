@@ -74,7 +74,8 @@ RUN wget -cq $TFSEC_URL -O /usr/local/bin/tfsec && \
 ############ END ############
 
 FROM --platform=$BUILDPLATFORM ubuntu:24.04
-COPY --from=go_install /go /usr/local/bin/
+# Only the extracted toolchain, at the path ENV PATH expects (not the downloaded archive).
+COPY --from=go_install /go/go /usr/local/go
 COPY --from=bin_install /usr/local/bin /usr/local/bin/
 
 ENV GOPATH=$HOME/go
