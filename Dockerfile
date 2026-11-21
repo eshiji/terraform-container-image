@@ -5,6 +5,7 @@ FROM --platform=$BUILDPLATFORM golang:alpine AS go_install
 # Set GOOS and GOARCH to match the final image's TARGETPLATFORM.
 # BuildKit automatically sets TARGETOS and TARGETARCH.
 ARG TARGETOS TARGETARCH
+# renovate: datasource=golang-version depName=go
 ARG GOLANG_VERSION="1.25.0"
 
 WORKDIR /go
@@ -26,11 +27,16 @@ LABEL maintainer="eshijii@gmail.com"
 
 ARG TARGETOS TARGETARCH
 
+# renovate: datasource=github-releases depName=hashicorp/terraform extractVersion=^v(?<version>.+)$
 ARG TERRAFORM_VERSION="1.2.1"
+# renovate: datasource=github-releases depName=gruntwork-io/terragrunt
 ARG TERRAGRUNT_VERSION="v0.86.2"
+# renovate: datasource=github-releases depName=terraform-docs/terraform-docs
 ARG TERRAFORM_DOCS_VERSION="v0.20.0"
+# renovate: datasource=github-releases depName=aquasecurity/tfsec
 ARG TFSEC_VERSION="v1.28.14"
-ARG TFSWITCH_VERSION="v1.5.1"
+# renovate: datasource=github-releases depName=warrensbox/terraform-switcher
+ARG TFSWITCH_VERSION="v1.20.0"
 
 ARG TERRAFORM_RELEASES_URL="https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}"
 ARG TFSWITCH_URL="https://raw.githubusercontent.com/warrensbox/terraform-switcher/release/install.sh"
@@ -46,7 +52,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # terraform: installed directly (checksum-verified) instead of via tfswitch,
-# whose bundled HashiCorp PGP key no longer verifies and whose default
+# because tfswitch releases before v1.17 cannot verify HashiCorp's current PGP key and its default
 # install dir (~/bin) is not copied into the final stage.
 RUN cd /tmp && \
     ZIP="terraform_${TERRAFORM_VERSION}_${TARGETOS}_${TARGETARCH}.zip" && \
